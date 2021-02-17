@@ -9,6 +9,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -165,14 +166,15 @@ public class CodePushUpdateManager {
         // Download the file while checking if it is a zip and notifying client of progress.
         try {
             URL downloadUrl = new URL(downloadUrlString);
-            connection = (HttpsURLConnection) (downloadUrl.openConnection());
+            connection = (HttpsURLConnection) downloadUrl.openConnection();
 
-            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
-                downloadUrl.toString().startsWith("https")) {
-                try {
-                    ((HttpsURLConnection)connection).setSSLSocketFactory(new TLSSocketFactory());
-                } catch (Exception e) {
-                    throw new CodePushUnknownException("Error set SSLSocketFactory. ", e);
+            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                if (downloadUrl.toString().startsWith("https")) {
+                    try {
+                        connection.setSSLSocketFactory(new TLSSocketFactory());
+                    } catch (Exception e) {
+                        CodePushUtils.log(e.getMessage());
+                    }
                 }
             }
 
@@ -345,13 +347,13 @@ public class CodePushUpdateManager {
 
     public void downloadAndReplaceCurrentBundle(String remoteBundleUrl, String bundleFileName) throws IOException {
         URL downloadUrl;
-        HttpsURLConnection connection = null;
+        HttpURLConnection connection = null;
         BufferedInputStream bin = null;
         FileOutputStream fos = null;
         BufferedOutputStream bout = null;
         try {
             downloadUrl = new URL(remoteBundleUrl);
-            connection = (HttpsURLConnection) (downloadUrl.openConnection());
+            connection = (HttpURLConnection) (downloadUrl.openConnection());
             bin = new BufferedInputStream(connection.getInputStream());
             File downloadFile = new File(getCurrentPackageBundlePath(bundleFileName));
             downloadFile.delete();

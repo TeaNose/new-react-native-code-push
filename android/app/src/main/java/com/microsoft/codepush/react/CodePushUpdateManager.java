@@ -9,7 +9,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
+import java.net.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -156,7 +156,7 @@ public class CodePushUpdateManager {
         }
 
         String downloadUrlString = updatePackage.optString(CodePushConstants.DOWNLOAD_URL_KEY, null);
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null;
         BufferedInputStream bin = null;
         FileOutputStream fos = null;
         BufferedOutputStream bout = null;
@@ -166,7 +166,7 @@ public class CodePushUpdateManager {
         // Download the file while checking if it is a zip and notifying client of progress.
         try {
             URL downloadUrl = new URL(downloadUrlString);
-            connection = (HttpURLConnection) (downloadUrl.openConnection());
+            connection = (HttpsURLConnection) (downloadUrl.openConnection());
 
             if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
                 downloadUrl.toString().startsWith("https")) {
@@ -346,13 +346,13 @@ public class CodePushUpdateManager {
 
     public void downloadAndReplaceCurrentBundle(String remoteBundleUrl, String bundleFileName) throws IOException {
         URL downloadUrl;
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null;
         BufferedInputStream bin = null;
         FileOutputStream fos = null;
         BufferedOutputStream bout = null;
         try {
             downloadUrl = new URL(remoteBundleUrl);
-            connection = (HttpURLConnection) (downloadUrl.openConnection());
+            connection = (HttpsURLConnection) (downloadUrl.openConnection());
             bin = new BufferedInputStream(connection.getInputStream());
             File downloadFile = new File(getCurrentPackageBundlePath(bundleFileName));
             downloadFile.delete();
